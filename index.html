@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GiroTotal · Service de lavarropas a domicilio</title>
+<meta name="description" content="Reparación de lavarropas y lavasecarropas a domicilio. Diagnóstico en el día, presupuesto sin sorpresas y 90 días de garantía.">
+<meta name="theme-color" content="#060b17">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='4' width='52' height='56' rx='12' fill='%2322d3ee'/%3E%3Ccircle cx='32' cy='36' r='17' fill='%23060b17'/%3E%3Ccircle cx='32' cy='36' r='9' fill='%233b82f6'/%3E%3Ccircle cx='18' cy='14' r='3' fill='%23060b17'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060b17; --bg-2:#0a1428;
+    --surface:rgba(255,255,255,.035); --surface-2:rgba(255,255,255,.06);
+    --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16);
+    --text:#e9eff9; --muted:#97a6bf;
+    --aqua:#22d3ee; --blue:#3b82f6; --violet:#8b5cf6;
+    --ok:#a3e635; --warn:#fbbf24; --danger:#fb7185;
+    --grad:linear-gradient(135deg,#22d3ee 0%,#3b82f6 55%,#8b5cf6 100%);
+    --radius:22px; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  img,svg{display:block}
+  a{color:inherit}
+  h1,h2,h3{font-family:Sora,Inter,sans-serif;letter-spacing:-.02em;line-height:1.15}
+  .wrap{width:min(var(--max),100% - 32px);margin-inline:auto}
+
+  /* Fondo */
+  .bg{position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(640px 420px at 88% -6%,rgba(59,130,246,.28),transparent 70%),
+      radial-gradient(520px 420px at -4% 28%,rgba(34,211,238,.15),transparent 70%),
+      radial-gradient(760px 520px at 60% 112%,rgba(139,92,246,.2),transparent 70%),
+      var(--bg)}
+  .bg::after{content:"";position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:56px 56px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 25%,transparent 72%);mask-image:radial-gradient(ellipse at 50% 0%,#000 25%,transparent 72%)}
+
+  /* Botones */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;padding:.85rem 1.35rem;border-radius:999px;font:inherit;font-weight:600;text-decoration:none;border:0;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
+  .btn:hover{transform:translateY(-2px)}
+  .btn:focus-visible,.sym:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--aqua);outline-offset:3px}
+  .btn-primary{background:var(--grad);color:#04101f;box-shadow:0 12px 32px -12px rgba(34,211,238,.7)}
+  .btn-primary:hover{box-shadow:0 16px 40px -10px rgba(34,211,238,.85)}
+  .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line-2)}
+  .btn svg{width:18px;height:18px}
+
+  /* Nav */
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(6,11,23,.62);border-bottom:1px solid var(--line)}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+  .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;font-family:Sora;font-weight:800;font-size:1.2rem;letter-spacing:-.02em}
+  .logo svg{width:34px;height:34px}
+  .logo b{font-weight:inherit;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .nav-links{display:flex;gap:28px;list-style:none}
+  .nav-links a{text-decoration:none;color:var(--muted);font-size:.93rem;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .nav .btn{padding:.6rem 1.1rem;font-size:.92rem}
+
+  /* Hero */
+  .hero{padding:72px 0 40px}
+  .hero .wrap{display:grid;grid-template-columns:1.08fr .92fr;gap:48px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:.6rem;padding:.4rem .9rem .4rem .7rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+  .pulse{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(163,230,53,.6);animation:pulse 1.8s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 10px rgba(163,230,53,0)}100%{box-shadow:0 0 0 0 rgba(163,230,53,0)}}
+  .hero h1{font-size:clamp(2.5rem,5.6vw,4.3rem);font-weight:800;letter-spacing:-.035em;line-height:1.04;margin:22px 0 20px}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lead{font-size:1.12rem;max-width:52ch}
+  .lead{color:var(--muted)}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:44px}
+  .stat{padding:14px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+  .stat b{display:block;font-family:Sora;font-size:1.55rem;font-weight:700;letter-spacing:-.02em}
+  .stat small{color:var(--muted);font-size:.8rem;line-height:1.3;display:block}
+
+  /* Lavarropas animado */
+  .stage{position:relative;display:grid;place-items:center;padding:24px 0}
+  .stage::before{content:"";position:absolute;width:78%;aspect-ratio:1;border-radius:50%;background:var(--grad);filter:blur(80px);opacity:.35}
+  .float{animation:float 6s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-12px)}}
+  .washer{width:min(330px,74vw);height:auto;filter:drop-shadow(0 30px 40px rgba(0,0,0,.5))}
+  .spin .washer{animation:shake .11s linear infinite}
+  @keyframes shake{25%{transform:translate(1.6px,-1px) rotate(.25deg)}50%{transform:translate(-1.2px,1px)}75%{transform:translate(1px,1px) rotate(-.25deg)}}
+  .washer .clothes{transform-box:view-box;transform-origin:160px 236px;animation:tumble 3.4s ease-in-out infinite}
+  .spin .washer .clothes{animation:whirl .42s linear infinite}
+  @keyframes tumble{50%{transform:rotate(230deg)}}
+  @keyframes whirl{to{transform:rotate(360deg)}}
+  .washer .wave{animation:wave 2.2s linear infinite}
+  .spin .washer .wave{animation-duration:.6s}
+  @keyframes wave{to{transform:translateX(-80px)}}
+  .washer .level{transition:transform 1.4s cubic-bezier(.6,0,.3,1)}
+  .spin .washer .level{transform:translateY(64px)}
+  .washer .bubble{opacity:0;animation:rise 3.2s ease-in infinite}
+  @keyframes rise{0%{transform:translateY(0);opacity:0}20%{opacity:.85}100%{transform:translateY(-150px);opacity:0}}
+  .washer .led{animation:blink 1.6s steps(2) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .washer .knob{transform-box:view-box;transform-origin:262px 56px;transition:transform .8s}
+  .spin .washer .knob{transform:rotate(140deg)}
+
+  .tag{position:absolute;display:flex;align-items:center;gap:.7rem;padding:.65rem .9rem;border-radius:14px;background:rgba(10,20,40,.78);border:1px solid var(--line-2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:.85rem;line-height:1.3;box-shadow:0 18px 40px -18px rgba(0,0,0,.8)}
+  .tag small{display:block;color:var(--muted);font-size:.75rem}
+  .tag .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+  .tag .ico svg{width:18px;height:18px}
+  .tag-1{top:6%;left:-4%;animation:float 5s ease-in-out infinite .4s}
+  .tag-2{bottom:16%;right:-6%;animation:float 5.5s ease-in-out infinite 1s}
+  .tag-3{bottom:-2%;left:4%;min-width:210px}
+  .tag-3 strong{transition:color .3s}
+  .spin .tag-3 strong{color:var(--aqua)}
+
+  /* Marcas */
+  .brands{padding:28px 0 8px}
+  .brands p{text-align:center;color:var(--muted);font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px}
+  .marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  .track{display:flex;width:max-content;animation:marquee 32s linear infinite}
+  .set{display:flex;gap:56px;padding-right:56px}
+  .set span{font-family:Sora;font-weight:700;font-size:1.5rem;color:rgba(233,239,249,.38);white-space:nowrap;letter-spacing:-.01em}
+  @keyframes marquee{to{transform:translateX(-50%)}}
+
+  /* Secciones */
+  .section{padding:104px 0}
+  .kicker{color:var(--aqua);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem}
+  .section h2{font-size:clamp(1.9rem,3.8vw,2.8rem);font-weight:700;margin:12px 0 14px}
+  .section .lead{max-width:62ch;font-size:1.05rem}
+  .head-center{text-align:center}
+  .head-center .lead{margin-inline:auto}
+
+  /* Diagnóstico */
+  .diag{display:grid;grid-template-columns:.95fr 1.05fr;gap:28px;margin-top:44px;align-items:start}
+  .symptoms{display:flex;flex-wrap:wrap;gap:10px}
+  .sym{display:inline-flex;align-items:center;gap:.6rem;padding:.8rem 1.1rem;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+  .sym:hover{background:var(--surface-2);transform:translateY(-1px)}
+  .sym .dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+  .sym[aria-pressed="true"]{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.65);box-shadow:0 0 0 4px rgba(34,211,238,.08)}
+  .diag-note{margin-top:18px;color:var(--muted);font-size:.88rem}
+  .panel{position:relative;padding:30px;border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.02));border:1px solid var(--line-2);overflow:hidden}
+  .panel::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:var(--grad);opacity:.35;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .panel.flash .panel-body{animation:fadeup .45s ease}
+  @keyframes fadeup{from{opacity:0;transform:translateY(8px)}}
+  .panel h3{font-size:1.45rem;margin-bottom:14px}
+  .meta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+  .pill{display:inline-flex;align-items:center;gap:.55rem;padding:.4rem .8rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+  .pill b{color:var(--text);font-weight:600}
+  .sev{display:inline-flex;gap:4px}
+  .sev i{width:18px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)}
+  .sev i.on{background:var(--c)}
+  .panel h4{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;font-family:Inter}
+  .causes{list-style:none;display:grid;gap:8px;margin-bottom:22px}
+  .causes li{display:flex;gap:.7rem;align-items:flex-start}
+  .causes li::before{content:"";flex:none;width:7px;height:7px;margin-top:.62em;border-radius:50%;background:var(--aqua);box-shadow:0 0 10px var(--aqua)}
+  .tip{padding:14px 16px;border-radius:14px;background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);margin-bottom:22px;font-size:.95rem}
+  .tip strong{color:var(--aqua)}
+
+  /* Servicios */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+  .card{padding:26px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line);transition:transform .25s,border-color .25s,background .25s}
+  .card:hover{transform:translateY(-5px);border-color:rgba(34,211,238,.4);background:var(--surface-2)}
+  .card .ico{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;margin-bottom:18px;background:linear-gradient(135deg,rgba(34,211,238,.18),rgba(139,92,246,.18));border:1px solid var(--line-2);color:var(--aqua)}
+  .card .ico svg{width:24px;height:24px}
+  .card h3{font-size:1.15rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.95rem}
+
+  /* Pasos */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px;counter-reset:step;position:relative}
+  .steps::before{content:"";position:absolute;top:30px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.5),rgba(139,92,246,.5),transparent)}
+  .step{position:relative;text-align:center;padding:0 8px}
+  .step .num{width:60px;height:60px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;font-family:Sora;font-weight:800;font-size:1.3rem;border:2px solid transparent;background:linear-gradient(var(--bg-2),var(--bg-2)) padding-box,var(--grad) border-box;position:relative}
+  .step h3{font-size:1.08rem;margin-bottom:6px}
+  .step p{color:var(--muted);font-size:.93rem}
+
+  /* CTA */
+  .cta{position:relative;overflow:hidden;border-radius:28px;padding:56px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px;background:linear-gradient(120deg,rgba(34,211,238,.16),rgba(59,130,246,.14) 45%,rgba(139,92,246,.2));border:1px solid var(--line-2)}
+  .cta::after{content:"";position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;border:28px solid rgba(255,255,255,.05);box-shadow:inset 0 0 0 40px rgba(255,255,255,.03)}
+  .cta h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:22ch;margin:0}
+  .cta p{color:var(--muted);margin-top:10px;max-width:52ch}
+  .cta .btn{position:relative;z-index:1}
+
+  /* FAQ */
+  .faq{max-width:820px;margin:44px auto 0;display:grid;gap:12px}
+  details{border-radius:16px;background:var(--surface);border:1px solid var(--line);transition:border-color .2s,background .2s}
+  details[open]{border-color:rgba(34,211,238,.35);background:var(--surface-2)}
+  summary{list-style:none;cursor:pointer;padding:18px 22px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:16px;border-radius:16px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"";flex:none;width:12px;height:12px;background:linear-gradient(var(--aqua),var(--aqua)) center/100% 2px no-repeat,linear-gradient(var(--aqua),var(--aqua)) center/2px 100% no-repeat;transition:transform .25s}
+  details[open] summary::after{transform:rotate(45deg)}
+  details p{padding:0 22px 18px;color:var(--muted)}
+
+  /* Contacto */
+  .contact{display:grid;grid-template-columns:.85fr 1.15fr;gap:40px;align-items:start}
+  .info{display:grid;gap:14px;margin-top:30px}
+  .info div{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+  .info svg{width:22px;height:22px;color:var(--aqua);flex:none}
+  .info small{display:block;color:var(--muted);font-size:.8rem}
+  form,.done{padding:30px;border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line-2)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field{display:grid;gap:6px;margin-bottom:14px}
+  .field label,.legend{font-size:.85rem;font-weight:500;color:var(--muted)}
+  input,select,textarea{width:100%;font:inherit;color:var(--text);background:rgba(6,11,23,.6);border:1px solid var(--line-2);border-radius:12px;padding:.75rem .9rem;transition:border-color .2s,box-shadow .2s}
+  input:focus,select:focus,textarea:focus{border-color:var(--aqua);box-shadow:0 0 0 4px rgba(34,211,238,.12);outline:none}
+  select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:2.4rem}
+  select option{background:var(--bg-2)}
+  textarea{resize:vertical;min-height:96px}
+  .slots{display:flex;gap:10px;margin:6px 0 16px}
+  .slots label{flex:1;cursor:pointer}
+  .slots input{position:absolute;opacity:0;width:1px;height:1px}
+  .slots span{display:block;text-align:center;padding:.7rem;border-radius:12px;border:1px solid var(--line-2);background:rgba(6,11,23,.6);font-size:.92rem;transition:all .2s}
+  .slots input:checked+span{border-color:var(--aqua);background:rgba(34,211,238,.12);color:var(--text)}
+  .slots input:focus-visible+span{outline:2px solid var(--aqua);outline-offset:2px}
+  form .btn{width:100%;margin-top:4px}
+  .fine{margin-top:12px;font-size:.78rem;color:var(--muted);text-align:center}
+  .err{color:var(--danger);font-size:.8rem;min-height:0}
+  .done{text-align:center}
+  .done .check{width:72px;height:72px;margin:6px auto 18px;border-radius:50%;display:grid;place-items:center;background:var(--grad);color:#04101f}
+  .done .check svg{width:34px;height:34px}
+  .done h3{font-size:1.5rem;margin-bottom:8px}
+  .done p{color:var(--muted)}
+  .order{display:inline-block;margin:18px 0;padding:.6rem 1.2rem;border-radius:12px;font-family:Sora;font-weight:700;font-size:1.4rem;letter-spacing:.06em;background:var(--surface-2);border:1px dashed rgba(34,211,238,.6)}
+
+  /* Footer */
+  footer{border-top:1px solid var(--line);padding:36px 0 44px;margin-top:40px}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px}
+  footer p{color:var(--muted);font-size:.86rem}
+
+  /* Aparición al hacer scroll */
+  .js .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .js .reveal.in{opacity:1;transform:none}
+
+  @media (max-width:980px){
+    .hero .wrap,.diag,.contact{grid-template-columns:1fr}
+    .hero{padding-top:44px}
+    .stage{order:-1;margin-bottom:8px}
+    .grid-3{grid-template-columns:1fr 1fr}
+    .steps{grid-template-columns:1fr 1fr;row-gap:36px}
+    .steps::before{display:none}
+    .nav-links{display:none}
+    .cta{flex-direction:column;align-items:flex-start;padding:40px 28px}
+  }
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr 1fr}
+    .grid-3,.steps,.row{grid-template-columns:1fr}
+    .section{padding:76px 0}
+    .stage{padding-bottom:56px}
+    .tag-1,.tag-2{display:none}
+    .tag-3{bottom:0;left:50%;transform:translateX(-50%)}
+    .hero-cta .btn{flex:1}
+    form,.done,.panel{padding:22px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+    .js .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="GiroTotal, inicio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset=".55" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect x="6" y="4" width="52" height="56" rx="12" fill="url(#lg)"/><circle cx="32" cy="36" r="17" fill="#060b17"/><circle cx="32" cy="36" r="9" fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="14 6"/><circle cx="18" cy="14" r="3" fill="#060b17"/><rect x="34" y="11" width="16" height="6" rx="3" fill="#060b17"/></svg>
+      <span>Giro<b>Total</b></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#diagnostico">Diagnóstico</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#como">Cómo trabajamos</a></li>
+      <li><a href="#faq">Preguntas</a></li>
+    </ul>
+    <a class="btn btn-primary" href="#contacto">Pedir técnico</a>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow"><span class="pulse"></span> Técnicos disponibles hoy en Gran Mendoza</span>
+        <h1>Tu lavarropas, <span class="grad-text">girando</span> como el primer día.</h1>
+        <p class="lead">Service a domicilio para lavarropas y lavasecarropas de todas las marcas. Diagnóstico en el día, presupuesto antes de tocar nada y 90 días de garantía en cada reparación.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#contacto">Pedir técnico
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#diagnostico">¿Qué le pasa al mío?</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><b data-count="24" data-suffix=" h">24 h</b><small>visita en días hábiles</small></div>
+          <div class="stat"><b data-count="90" data-suffix=" días">90 días</b><small>de garantía escrita</small></div>
+          <div class="stat"><b data-count="15" data-prefix="+">+15</b><small>marcas que reparamos</small></div>
+          <div class="stat"><b>$0</b><small>presupuesto si reparás</small></div>
+        </div>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="float">
+          <svg class="washer" viewBox="0 0 320 400" role="img" aria-label="Lavarropas funcionando">
+            <defs>
+              <linearGradient id="gBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fbff"/><stop offset="1" stop-color="#c3d0e2"/></linearGradient>
+              <linearGradient id="gRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef3f9"/><stop offset="1" stop-color="#8496ae"/></linearGradient>
+              <radialGradient id="gGlass" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#173a66"/><stop offset="1" stop-color="#040a16"/></radialGradient>
+              <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5eead4" stop-opacity=".9"/><stop offset="1" stop-color="#2563eb" stop-opacity=".9"/></linearGradient>
+              <clipPath id="porthole"><circle cx="160" cy="236" r="88"/></clipPath>
+            </defs>
+            <rect x="40" y="374" width="34" height="14" rx="4" fill="#64748b"/>
+            <rect x="246" y="374" width="34" height="14" rx="4" fill="#64748b"/>
+            <rect x="18" y="16" width="284" height="364" rx="30" fill="url(#gBody)"/>
+            <path d="M48 16h224a30 30 0 0 1 30 30v50H18V46a30 30 0 0 1 30-30z" fill="#eef3f9"/>
+            <line x1="18" x2="302" y1="96" y2="96" stroke="#b6c4d6" stroke-width="2"/>
+            <circle class="led" cx="46" cy="56" r="5" fill="#22d3ee"/>
+            <circle class="led" cx="66" cy="56" r="5" fill="#a3e635" style="animation-delay:.4s"/>
+            <circle class="led" cx="86" cy="56" r="5" fill="#f472b6" style="animation-delay:.8s"/>
+            <rect x="116" y="37" width="100" height="38" rx="9" fill="#0a1426"/>
+            <text id="lcd" x="166" y="63" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="18" font-weight="700" fill="#22d3ee" letter-spacing="2">00:42</text>
+            <g class="knob">
+              <circle cx="262" cy="56" r="21" fill="url(#gRing)"/>
+              <circle cx="262" cy="56" r="15" fill="#f6f9fd"/>
+              <rect x="260" y="43" width="4" height="11" rx="2" fill="#3b82f6"/>
+            </g>
+            <circle cx="160" cy="236" r="114" fill="url(#gRing)"/>
+            <circle cx="160" cy="236" r="102" fill="#dde6f1"/>
+            <circle cx="160" cy="236" r="92" fill="url(#gGlass)"/>
+            <g clip-path="url(#porthole)">
+              <g class="clothes">
+                <rect x="104" y="246" width="50" height="28" rx="12" fill="#f472b6"/>
+                <rect x="166" y="168" width="42" height="24" rx="10" fill="#facc15"/>
+                <ellipse cx="204" cy="262" rx="22" ry="13" fill="#a78bfa"/>
+                <rect x="116" y="186" width="30" height="17" rx="8" fill="#34d399"/>
+                <rect x="150" y="286" width="26" height="14" rx="7" fill="#fb923c"/>
+              </g>
+              <g class="level">
+                <g class="wave">
+                  <path d="M-20 250 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 V360 H-20 Z" fill="url(#gWater)"/>
+                </g>
+              </g>
+              <circle class="bubble" cx="128" cy="318" r="5" fill="#e0f2fe"/>
+              <circle class="bubble" cx="176" cy="326" r="3.5" fill="#e0f2fe" style="animation-delay:.9s"/>
+              <circle class="bubble" cx="204" cy="314" r="4.5" fill="#e0f2fe" style="animation-delay:1.7s"/>
+              <circle class="bubble" cx="150" cy="330" r="3" fill="#e0f2fe" style="animation-delay:2.4s"/>
+            </g>
+            <path d="M96 196 A78 78 0 0 1 170 160" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="9" stroke-linecap="round"/>
+            <path d="M104 226 A70 70 0 0 1 112 206" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="6" stroke-linecap="round"/>
+            <rect x="266" y="222" width="10" height="30" rx="5" fill="#94a3b8"/>
+          </svg>
+        </div>
+
+        <div class="tag tag-1">
+          <span class="ico" style="background:rgba(163,230,53,.15);color:#a3e635"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span>
+          <div><strong>Diagnóstico listo</strong><small>Bomba de desagote</small></div>
+        </div>
+        <div class="tag tag-2">
+          <span class="ico" style="background:rgba(34,211,238,.15);color:#22d3ee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 13h13V6H1zM14 9h4l3 4v4h-7zM5.5 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17.5 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></span>
+          <div><strong>Técnico en camino</strong><small>Llega en 35 min</small></div>
+        </div>
+        <div class="tag tag-3">
+          <span class="ico" style="background:rgba(139,92,246,.18);color:#a78bfa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></span>
+          <div><small>Programa de prueba</small><strong id="mode">Lavado intensivo</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="brands" aria-label="Marcas que reparamos">
+    <p>Reparamos todas las marcas</p>
+    <div class="marquee">
+      <div class="track">
+        <div class="set"><span>Drean</span><span>Whirlpool</span><span>Samsung</span><span>LG</span><span>Electrolux</span><span>Patrick</span><span>Gafa</span><span>Bosch</span><span>Philco</span><span>Candy</span><span>Aurora</span><span>Kohinoor</span></div>
+        <div class="set" aria-hidden="true"><span>Drean</span><span>Whirlpool</span><span>Samsung</span><span>LG</span><span>Electrolux</span><span>Patrick</span><span>Gafa</span><span>Bosch</span><span>Philco</span><span>Candy</span><span>Aurora</span><span>Kohinoor</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="diagnostico">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker">Diagnóstico rápido</span>
+        <h2>¿Qué le pasa a tu lavarropas?</h2>
+        <p class="lead">Elegí el síntoma y te contamos qué suele ser, cuánto tarda el arreglo y qué podés revisar vos antes de llamarnos.</p>
+      </div>
+      <div class="diag">
+        <div class="reveal">
+          <div class="symptoms" id="symptoms" role="group" aria-label="Síntomas"></div>
+          <p class="diag-note">El color indica la urgencia: <span style="color:var(--ok)">leve</span>, <span style="color:var(--warn)">media</span> o <span style="color:var(--danger)">alta</span>.</p>
+        </div>
+        <div class="panel reveal" id="panel" aria-live="polite">
+          <div class="panel-body" id="panelBody"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="servicios" style="padding-top:0">
+    <div class="wrap">
+      <div class="head-center reveal">
+        <span class="kicker">Servicios</span>
+        <h2>Todo lo que tu equipo necesita</h2>
+        <p class="lead">Carga frontal, carga superior, lavasecarropas y semiautomáticos. Si lava, lo arreglamos.</p>
+      </div>
+      <div class="grid-3">
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></div>
+          <h3>Reparación a domicilio</h3>
+          <p>Diagnóstico y arreglo en tu casa, sin cargar el lavarropas a ningún lado.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg></div>
+          <h3>Plaquetas electrónicas</h3>
+          <p>Reparamos la plaqueta en vez de cambiarla: mismo resultado, mucho menos costo.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="5.5" r=".8"/><circle cx="18.5" cy="12" r=".8"/><circle cx="12" cy="18.5" r=".8"/><circle cx="5.5" cy="12" r=".8"/></svg></div>
+          <h3>Rulemanes y retenes</h3>
+          <p>Cambio de rodamientos con herramientas específicas. Chau al ruido de avión al centrifugar.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></div>
+          <h3>Pérdidas de agua</h3>
+          <p>Burletes, mangueras, bombas y cubas. Encontramos la pérdida aunque sea intermitente.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></div>
+          <h3>Mantenimiento preventivo</h3>
+          <p>Limpieza de filtros, cubeta y tambor, control de mangueras y nivelación. Ideal una vez al año.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18"/><rect x="4" y="9" width="16" height="6" rx="3"/><circle cx="12" cy="12" r="1.4"/></svg></div>
+          <h3>Instalación y nivelado</h3>
+          <p>Conexión de agua y desagote, anclaje y nivelado para que no "camine" por el lavadero.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="como" style="padding-top:0">
+    <div class="wrap">
+      <div class="head-center reveal">
+        <span class="kicker">Cómo trabajamos</span>
+        <h2>Cuatro pasos, cero sorpresas</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><div class="num">1</div><h3>Nos contás qué pasa</h3><p>Con la marca y el síntoma ya sabemos qué repuestos llevar.</p></div>
+        <div class="step reveal"><div class="num">2</div><h3>Vamos a tu casa</h3><p>Coordinamos una franja horaria y llegamos con el taller en la camioneta.</p></div>
+        <div class="step reveal"><div class="num">3</div><h3>Presupuesto claro</h3><p>Te decimos qué tiene y cuánto sale antes de tocar nada. Sin letra chica.</p></div>
+        <div class="step reveal"><div class="num">4</div><h3>Reparado y garantizado</h3><p>Probamos un ciclo completo frente a vos y te dejamos la garantía por escrito.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap reveal">
+    <div class="cta">
+      <div>
+        <h2>¿Ruido raro, olor a humedad o un charquito?</h2>
+        <p>Atacalo hoy: lo que hoy es un burlete, mañana puede ser una cuba. Cuanto antes lo vemos, más barato sale.</p>
+      </div>
+      <a class="btn btn-primary" href="#contacto">Quiero que lo revisen</a>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="head-center reveal">
+        <span class="kicker">Preguntas frecuentes</span>
+        <h2>Lo que siempre nos preguntan</h2>
+      </div>
+      <div class="faq reveal">
+        <details><summary>¿Cobran la visita?</summary><p>La visita de diagnóstico tiene un costo fijo que se descuenta del total si aceptás la reparación.</p></details>
+        <details><summary>¿Qué garantía tienen los arreglos?</summary><p>90 días sobre la mano de obra y los repuestos que colocamos, siempre por escrito.</p></details>
+        <details><summary>¿Trabajan con lavasecarropas y carga superior?</summary><p>Sí: carga frontal, carga superior, lavasecarropas y semiautomáticos de todas las marcas.</p></details>
+        <details><summary>¿Usan repuestos originales?</summary><p>Siempre que existan en el mercado. Si hay una alternativa compatible, te damos las dos opciones con su precio y elegís vos.</p></details>
+        <details><summary>¿Cuánto tarda una reparación?</summary><p>La mayoría se resuelve en la primera visita. Si hay que pedir un repuesto, volvemos dentro de las 24 a 72 h.</p></details>
+        <details><summary>¿Cómo puedo pagar?</summary><p>Efectivo, transferencia, débito y crédito. Siempre te dejamos comprobante.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contacto" style="padding-top:0">
+    <div class="wrap contact">
+      <div class="reveal">
+        <span class="kicker">Contacto</span>
+        <h2>Pedí tu técnico</h2>
+        <p class="lead">Completá el formulario y te escribimos para coordinar la visita.</p>
+        <div class="info">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><small>Horario</small>Lunes a sábado · 8 a 20 h</span></div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span><small>Zona de cobertura</small>Capital, Godoy Cruz, Guaymallén, Las Heras, Maipú y Luján</span></div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span><small>Respuesta</small>En menos de 1 hora hábil</span></div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <form id="form" novalidate>
+          <div class="row">
+            <div class="field"><label for="f-name">Nombre</label><input id="f-name" name="nombre" autocomplete="name" placeholder="Tu nombre" required><span class="err" id="e-name"></span></div>
+            <div class="field"><label for="f-tel">Teléfono / WhatsApp</label><input id="f-tel" name="tel" type="tel" autocomplete="tel" inputmode="tel" placeholder="261 …" required><span class="err" id="e-tel"></span></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="f-brand">Marca</label>
+              <select id="f-brand" name="brand">
+                <option>Drean</option><option>Whirlpool</option><option>Samsung</option><option>LG</option><option>Electrolux</option><option>Patrick</option><option>Gafa</option><option>Bosch</option><option>Otra</option>
+              </select>
+            </div>
+            <div class="field"><label for="f-issue">Problema</label><select id="f-issue" name="issue"></select></div>
+          </div>
+          <span class="legend">Franja horaria</span>
+          <div class="slots">
+            <label><input type="radio" name="slot" value="mañana" checked><span>Mañana · 8–13 h</span></label>
+            <label><input type="radio" name="slot" value="tarde"><span>Tarde · 14–20 h</span></label>
+          </div>
+          <div class="field"><label for="f-msg">Algo más que debamos saber (opcional)</label><textarea id="f-msg" name="msg" placeholder="Modelo, código de error, desde cuándo pasa…"></textarea></div>
+          <button class="btn btn-primary" type="submit">Pedir visita
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="fine">Sitio de demostración: el formulario no envía datos a ningún lado.</p>
+        </form>
+        <div class="done" id="done" hidden>
+          <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></div>
+          <h3 id="done-title">¡Listo!</h3>
+          <p id="done-text"></p>
+          <div class="order" id="order">GT-0000</div>
+          <p style="font-size:.85rem">Guardá este número para hacer el seguimiento.</p>
+          <button class="btn btn-ghost" id="again" type="button" style="margin-top:20px">Cargar otro pedido</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="Volver arriba">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="4" width="52" height="56" rx="12" fill="url(#lg)"/><circle cx="32" cy="36" r="17" fill="#060b17"/><circle cx="32" cy="36" r="9" fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="14 6"/><circle cx="18" cy="14" r="3" fill="#060b17"/><rect x="34" y="11" width="16" height="6" rx="3" fill="#060b17"/></svg>
+      <span>Giro<b>Total</b></span>
+    </a>
+    <p>© <span id="year">2026</span> GiroTotal · Service de lavarropas a domicilio</p>
+    <p>Proyecto «Mi primera web en Vercel» · Organización Empresarial</p>
+  </div>
+</footer>
+
+<script>
+  document.documentElement.classList.add('js');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Aparición al hacer scroll
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: .12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Contadores de la portada
+  document.querySelectorAll('[data-count]').forEach(el => {
+    if (reduced) return;
+    const to = +el.dataset.count, pre = el.dataset.prefix || '', suf = el.dataset.suffix || '';
+    const t0 = performance.now(), dur = 1200;
+    const tick = now => {
+      const p = Math.min(1, (now - t0) / dur), v = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      el.textContent = pre + v + suf;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+
+  // Ciclo del lavarropas: lavado ↔ centrifugado
+  const stage = document.getElementById('stage');
+  const lcd = document.getElementById('lcd');
+  const mode = document.getElementById('mode');
+  if (!reduced) {
+    let spinning = false, mins = 42;
+    setInterval(() => {
+      spinning = !spinning;
+      stage.classList.toggle('spin', spinning);
+      mode.textContent = spinning ? 'Centrifugado · 1200 rpm' : 'Lavado intensivo';
+    }, 4500);
+    setInterval(() => {
+      if (!spinning) mins = mins <= 1 ? 45 : mins - 1;
+      lcd.textContent = spinning ? '1200' : '00:' + String(mins).padStart(2, '0');
+    }, 1000);
+  }
+
+  // Diagnóstico rápido
+  const SEV = { 1: ['Leve', 'var(--ok)'], 2: ['Media', 'var(--warn)'], 3: ['Alta', 'var(--danger)'] };
+  const FALLAS = {
+    centrifuga: { label: 'No centrifuga', sev: 2, tiempo: '1 a 2 h',
+      causas: ['Carga desbalanceada (una prenda pesada sola, como un acolchado)', 'Carbones del motor gastados', 'Correa floja o cortada', 'Bomba de desagote obstruida: si no saca el agua, no centrifuga'],
+      tip: 'Redistribuí la ropa a mano y probá un programa de solo centrifugado. Si arranca, era la carga.' },
+    agua: { label: 'Pierde agua', sev: 2, tiempo: '45 min a 1,5 h',
+      causas: ['Burlete de la puerta roto o con hongos', 'Manguera de entrada o de desagote floja', 'Exceso de jabón: la espuma rebalsa por la cubeta', 'Bomba o cuba con pérdida'],
+      tip: 'Secá el piso y mirá dónde reaparece el charco: adelante suele ser el burlete; atrás, las mangueras.' },
+    desagota: { label: 'No desagota', sev: 2, tiempo: '30 min a 1 h',
+      causas: ['Filtro de la bomba tapado (monedas, hebillas, pelusa)', 'Manguera de desagote doblada o tapada', 'Bomba de desagote quemada'],
+      tip: 'Muchos equipos tienen el filtro abajo, adelante, detrás de una tapita. Poné una bandeja y toallas antes de abrirlo: sale agua.' },
+    ruido: { label: 'Hace mucho ruido', sev: 3, tiempo: '2 a 4 h',
+      causas: ['Rulemanes gastados: suena como un avión al centrifugar', 'Un objeto atrapado entre el tambor y la cuba', 'Amortiguadores o resortes vencidos', 'El equipo no está nivelado'],
+      tip: 'Revisá que las cuatro patas apoyen firme. Si el ruido es metálico y constante, no lo sigas usando: un rulemán roto puede dañar la cuba.' },
+    enciende: { label: 'No enciende', sev: 2, tiempo: '30 min a 2 h',
+      causas: ['Tomacorriente sin tensión o térmica cortada', 'Traba de puerta que no hace contacto', 'Cable de alimentación dañado', 'Falla en la plaqueta electrónica'],
+      tip: 'Probá el equipo en otro enchufe y fijate que la térmica del tablero no haya saltado.' },
+    carga: { label: 'No carga agua', sev: 1, tiempo: '30 min a 1 h',
+      causas: ['Canilla cerrada o con poca presión', 'Filtrito de malla de la electroválvula tapado', 'Electroválvula o presostato con falla'],
+      tip: 'Cerrá la canilla, desenroscá la manguera del lado del lavarropas y limpiá el filtrito de malla con un cepillo de dientes.' },
+    error: { label: 'Muestra un código de error', sev: 2, tiempo: 'Depende del código',
+      causas: ['Sensor de temperatura o de nivel de agua', 'Traba de puerta', 'Motor o plaqueta reportando una falla'],
+      tip: 'Anotá el código exacto (por ejemplo E21 o F05) y el modelo del equipo: con eso llegamos con el repuesto correcto.' }
+  };
+
+  const symBox = document.getElementById('symptoms');
+  const panel = document.getElementById('panel');
+  const panelBody = document.getElementById('panelBody');
+  const issueSel = document.getElementById('f-issue');
+
+  Object.entries(FALLAS).forEach(([key, f]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sym';
+    b.dataset.key = key;
+    b.style.setProperty('--c', SEV[f.sev][1]);
+    b.innerHTML = '<span class="dot"></span>' + f.label;
+    b.addEventListener('click', () => show(key));
+    symBox.appendChild(b);
+    issueSel.add(new Option(f.label, key));
+  });
+  issueSel.add(new Option('Otro problema', 'otro'));
+
+  function show(key) {
+    const f = FALLAS[key], [sevName, sevColor] = SEV[f.sev];
+    symBox.querySelectorAll('.sym').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === key));
+    const bars = [1, 2, 3].map(i => '<i' + (i <= f.sev ? ' class="on"' : '') + '></i>').join('');
+    panelBody.innerHTML =
+      '<h3>' + f.label + '</h3>' +
+      '<div class="meta">' +
+        '<span class="pill" style="--c:' + sevColor + '">Urgencia <span class="sev">' + bars + '</span> <b>' + sevName + '</b></span>' +
+        '<span class="pill">Reparación <b>' + f.tiempo + '</b></span>' +
+      '</div>' +
+      '<h4>Causas más comunes</h4>' +
+      '<ul class="causes">' + f.causas.map(c => '<li>' + c + '</li>').join('') + '</ul>' +
+      '<div class="tip"><strong>Probá esto primero:</strong> ' + f.tip + '</div>' +
+      '<a class="btn btn-primary" href="#contacto" id="askFor">Pedir técnico por esto</a>';
+    document.getElementById('askFor').addEventListener('click', () => { issueSel.value = key; });
+    panel.classList.remove('flash'); void panel.offsetWidth; panel.classList.add('flash');
+  }
+  show('centrifuga');
+
+  // Formulario (demo, no envía nada)
+  const form = document.getElementById('form');
+  const done = document.getElementById('done');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = form.elements.nombre.value.trim(), tel = form.elements.tel.value.trim();
+    const okName = name.length >= 2, okTel = tel.replace(/\D/g, '').length >= 8;
+    document.getElementById('e-name').textContent = okName ? '' : 'Decinos tu nombre.';
+    document.getElementById('e-tel').textContent = okTel ? '' : 'Revisá el número (mínimo 8 dígitos).';
+    if (!okName) return form.elements.nombre.focus();
+    if (!okTel) return form.elements.tel.focus();
+    const slot = form.elements.slot.value;
+    document.getElementById('done-title').textContent = '¡Listo, ' + name.split(' ')[0] + '!';
+    document.getElementById('done-text').textContent = 'Te escribimos al ' + tel + ' para coordinar la visita por la ' + slot + '.';
+    document.getElementById('order').textContent = 'GT-' + String(Math.floor(1000 + Math.random() * 9000));
+    form.hidden = true;
+    done.hidden = false;
+    done.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  });
+  document.getElementById('again').addEventListener('click', () => {
+    form.reset();
+    done.hidden = true;
+    form.hidden = false;
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
